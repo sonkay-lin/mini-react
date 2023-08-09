@@ -5,7 +5,9 @@ import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue } from './u
 import { scheduleUpdateOnFiber } from './workLoop';
 import { HostRoot } from './workTags';
 
+// 创建根节点
 export function createContainer(container: Container) {
+  
 	const hostRootFiber = new FiberNode(HostRoot, {}, null);
 	const root = new FiberRootNode(container, hostRootFiber);
 	hostRootFiber.updateQueue = createUpdateQueue();
