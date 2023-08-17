@@ -39,7 +39,7 @@ function renderRoot(root: FiberRootNode) {
 	prepareFreshStack(root);
 	do {
 		try {
-			// 递归
+			// 递归构建fiber树
 			workLoop();
 			break;
 		} catch (error) {
@@ -56,8 +56,9 @@ function renderRoot(root: FiberRootNode) {
 	commitRoot(root);
 }
 
-// commit 阶段有3个子阶段
+// 将已经完成更新的组件树渲染到实际的 DOM 中 
 function commitRoot(root: FiberRootNode) {
+  // commit 阶段有3个子阶段
 	const finishedWork = root.finishedWork;
 	if (finishedWork === null) {
 		return;

@@ -6,41 +6,44 @@ import { FunctionComponent, HostComponent, WorkTag } from './workTags';
 export class FiberNode {
 	tag: WorkTag;
 	key: Key;
-  // 保存更新是的props属性
+	// 保存更新时的props属性 当前 work-i-progress 的组件 props
 	pendingProps: Props;
-  // 保存更新后的props属性
+	// 保存更新后的props属性 缓存之前的组件的 props
 	memoizedProps: Props | null;
-  // 用于保存组件的状态值
+	// 用于保存组件的状态值
 	memoizedState: any;
 	/**
-   * stateNode 是指向原生dom 连接虚拟 DOM 和实际 DOM 的桥梁
-   * 在递归的归的过程中，生成的原生dom存放在stateNode中
-   * 然后在commitRoot方法中将子节点加到stateNode中
-   */ 
+	 * stateNode 是指向原生dom 连接虚拟 DOM 和实际 DOM 的桥梁
+	 * 在递归的归的过程中，生成的原生dom存放在stateNode中
+	 * 然后在commitRoot方法中将子节点加到stateNode中
+	 */
 	stateNode: any;
+	// fiber对应的function/class/module类型组件名
 	type: any;
 	ref: Ref;
-  // parent父节点
+	// parent父节点
 	return: FiberNode | null;
-  // 兄弟节点
+	// 兄弟节点
 	sibling: FiberNode | null;
-  // 子节点
+	// 子节点
 	child: FiberNode | null;
-  // 当前节点在兄弟节点中所处的索引
+	// 当前节点在兄弟节点中所处的索引
 	index: number;
 
 	/**
-   * alternate 起到双缓冲的作用 用来存放上一次渲染时的 Fiber 节点的引用
+	 * alternate 起到双缓冲的作用 用来存放上一次渲染时的 Fiber 节点的引用
 	 * 如果当前为current则指向workInProgess
 	 * 如果当前为workInProgess则指向current
 	 */
 	alternate: FiberNode | null;
-  // flags属性用来判断当前节点是否需要更新和协调操作
+	// flags属性用来判断当前节点是否需要更新和协调操作
 	flags: Flags;
-  // 用于标记child属性中(子节点)是否需要更新和协调操作
+	// 用于标记child属性中(子节点)是否需要更新和协调操作
 	subtreeFlags: Flags;
 
 	updateQueue: unknown;
+
+	deletions: FiberNode[] | null;
 	constructor(tag: WorkTag, pendingProps: Props, key: Key) {
 		this.tag = tag;
 		this.key = key;
@@ -67,13 +70,14 @@ export class FiberNode {
 		// 副作用
 		this.flags = NoFlags;
 		this.subtreeFlags = NoFlags;
+		this.deletions = [];
 	}
 }
 
 export class FiberRootNode {
 	// 挂载根节点的容器，在不同环境中，对应的container不同 我们称它为宿主环境
 	container: Container;
-  // 指向当前正在进行渲染和协调更新的 Fiber 节点
+	// 指向当前正在进行渲染和协调更新的 Fiber 节点
 	current: FiberNode;
 	// 保存整个流程更新完后的fiberNode
 	finishedWork: FiberNode | null;
@@ -92,15 +96,16 @@ export const createWorkInProgress = (current: FiberNode, pendingProps: Props): F
 		// mount
 		wip = new FiberNode(current.tag, pendingProps, current.key);
 		wip.stateNode = current.stateNode;
-    // 将正在更新的节点的alternate赋值为旧节点current
+		// 将正在更新的节点的alternate赋值为旧节点current
 		wip.alternate = current;
-    // 将旧节点的alternate赋值为正在更新的节点wip
+		// 将旧节点的alternate赋值为正在更新的节点wip
 		current.alternate = wip;
 	} else {
 		// update
 		wip.pendingProps = pendingProps;
 		wip.flags = NoFlags;
 		wip.subtreeFlags = NoFlags;
+		wip.deletions = null;
 	}
 	wip.type = current.type;
 	wip.updateQueue = current.updateQueue;
