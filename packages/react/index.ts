@@ -1,5 +1,5 @@
 import { Dispatcher, resolveDispatcher } from "./src/currentDispatcher";
-import { jsxDEV } from "./src/jsx";
+import { jsxDEV, Fragment } from "./src/jsx";
 import currentDispatcher from "./src/currentDispatcher";
 
 export const useState: Dispatcher['useState'] = (initalState) => {

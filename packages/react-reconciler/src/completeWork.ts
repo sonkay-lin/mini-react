@@ -2,7 +2,7 @@ import { appendInitialChild, Container, createInstance, createTextInstance } fro
 import { updateFiberProps } from 'react-dom/src/SyntheticEvent';
 import { FiberNode } from './fiber';
 import { NoFlags, Update } from './fiberFlags';
-import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
+import { Fragment, FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 
 // 将节点标记为更新
 function markUpdate(fiber: FiberNode) {
@@ -49,11 +49,9 @@ export const completeWork = (wip: FiberNode) => {
 			bubbleProperties(wip);
 			return null;
 		case HostRoot:
-			bubbleProperties(wip);
-			return null;
 		case FunctionComponent:
+		case Fragment:
 			bubbleProperties(wip);
-			return null;
 		default:
 			if (__DEV__) {
 				console.warn('未处理的completeWork情况', wip);

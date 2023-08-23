@@ -53,6 +53,7 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
 	}
 }
 
+// 收集捕获和冒泡
 function collectPaths(targetElement: DOMElement, container: Container, eventType: string) {
 	const paths: Paths = {
 		capture: [],
