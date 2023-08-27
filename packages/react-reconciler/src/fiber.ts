@@ -2,6 +2,7 @@ import { Key, Props, ReactElementType, Ref } from 'shared/ReactTypes';
 import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
 import { Fragment, FunctionComponent, HostComponent, WorkTag } from './workTags';
+import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
 
 export class FiberNode {
 	tag: WorkTag;
@@ -81,12 +82,16 @@ export class FiberRootNode {
 	current: FiberNode;
 	// 保存整个流程更新完后的fiberNode
 	finishedWork: FiberNode | null;
+	pendingLanes: Lanes;
+	finishedLane: Lane;
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
 		// 将根节点赋值为当前的fiberRootNode
 		hostRootFiber.stateNode = this;
 		this.finishedWork = null;
+		this.pendingLanes = NoLanes;
+		this.finishedLane = NoLane;
 	}
 }
 

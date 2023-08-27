@@ -7,17 +7,27 @@ const App = () => {
 	// 	num % 2 === 0
 	// 		? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
 	// 		: [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>];
+	// return (
+	// 	<ul>
+	// 		<>
+	// 			<li>1</li>
+	// 			<li>2</li>
+	// 		</>
+	// 		<li>3</li>
+	// 		<li>4</li>
+	// 	</ul>
+	// );
 	return (
-		<ul>
-			<>
-				<li>1</li>
-				<li>2</li>
-			</>
-			<li>3</li>
-			<li>4</li>
+		<ul
+			onClick={() => {
+				setNum((num) => num + 1);
+				setNum((num) => num + 1);
+				setNum((num) => num + 1);
+			}}
+		>
+			{num}
 		</ul>
 	);
-	// return <ul onClick={() => setNum(num + 1)}>{arr}</ul>;
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<App />);

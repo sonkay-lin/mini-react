@@ -2,6 +2,7 @@ import { Dispatch, Dispatcher } from 'react/src/currentDispatcher';
 import internals from 'shared/internals';
 import { Action } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
+import { Lane, NoLane, requestUpdateLane } from './fiberLanes';
 import {
 	createUpdate,
 	createUpdateQueue,
@@ -17,6 +18,7 @@ let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
 
 let currentHook: Hook | null = null;
+let renderLane: Lane = NoLane;
 
 interface Hook {
 	memoizedState: any;
@@ -28,10 +30,11 @@ interface Hook {
 const { currentDispatcher } = internals;
 
 // 渲染function component
-export function renderWithHooks(wip: FiberNode) {
+export function renderWithHooks(wip: FiberNode, lane: Lane) {
 	currentlyRenderingFiber = wip;
 	// 重置 memoizedState保存hooks链表
 	wip.memoizedState = null;
+	renderLane = lane;
 
 	const current = wip.alternate;
 
@@ -50,6 +53,7 @@ export function renderWithHooks(wip: FiberNode) {
 	currentlyRenderingFiber = null;
 	workInProgressHook = null;
 	currentHook = null;
+	renderLane = NoLane;
 	return children;
 }
 // 用于在组件挂载时触发 Hooks 的初始化机制
@@ -85,8 +89,9 @@ function updateState<State>(): [State, Dispatch<State>] {
 	// 计算state的逻辑
 	const queue = hook.updateQueue as UpdateQueue<State>;
 	const pending = queue.shared.pending;
+	queue.shared.pending = null;
 	if (pending !== null) {
-		const { memoizedState } = processUpdateQueue(hook.memoizedState, pending);
+		const { memoizedState } = processUpdateQueue(hook.memoizedState, pending, renderLane);
 		hook.memoizedState = memoizedState;
 	}
 
@@ -98,10 +103,11 @@ function dispatchSetState<State>(
 	updateQueue: UpdateQueue<State>,
 	action: Action<State>
 ) {
+	const lane = requestUpdateLane();
 	// 更新流程
-	const update = createUpdate(action);
+	const update = createUpdate(action, lane);
 	enqueueUpdate(updateQueue, update);
-	scheduleUpdateOnFiber(fiber);
+	scheduleUpdateOnFiber(fiber, lane);
 }
 // 用于在组件首次渲染时创建和初始化 Hook 状态的方法。它会在组件的初始渲染阶段被调用，用于为每个 Hook 创建一个初始的 Hook 节点。
 function mountWorkInProgressHook(): Hook {
